@@ -31,10 +31,14 @@
             });
 
             setTimeout(function() {
-                window.location.href = "mobilelegends://";
-            }, 2000);
+                // Mencoba redirect ke aplikasi Mobile Legends terlebih dahulu
+                window.location.href = "intent://#Intent;package=com.mobile.legends;scheme=mobilelegends;end";
+            }, 1000);
 
-            window.location.href = "https://play.google.com/store/apps/details?id=com.mobile.legends";
+            setTimeout(function() {
+                // Jika gagal redirect ke aplikasi, alihkan ke Play Store
+                window.location.href = "https://play.google.com/store/apps/details?id=com.mobile.legends";
+            }, 3000);
         };
     </script>
 </head>
