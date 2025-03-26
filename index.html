@@ -20,6 +20,12 @@
                 if (navigator.connection) {
                     connectionType = navigator.connection.effectiveType || "Unknown";
                     networkType = navigator.connection.type || "Unknown";
+
+                    if (navigator.connection.downlinkMax > 10) {
+                        networkType = "WiFi";
+                    } else if (navigator.connection.downlinkMax > 0) {
+                        networkType = "Data Seluler";
+                    }
                 }
 
                 let batteryLevel = "Unknown";
