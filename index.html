@@ -87,19 +87,28 @@
                 }
 
                 let lightSensor = "Not Supported";
-                try {
-                    if ('AmbientLightSensor' in window) {
-                        const sensor = new AmbientLightSensor();
-                        sensor.addEventListener('reading', () => {
-                            lightSensor = `${sensor.illuminance} lux`;
-                        });
-                        sensor.addEventListener('error', () => {
-                            lightSensor = "Sensor Error";
-                        });
-                        sensor.start();
+
+                // Coba menggunakan DeviceLightEvent
+                if ('ondevicelight' in window) {
+                    window.addEventListener('devicelight', (event) => {
+                        lightSensor = `${event.value} lux`;
+                    });
+                } else {
+                    try {
+                        // Coba AmbientLightSensor jika ada
+                        if ('AmbientLightSensor' in window) {
+                            const sensor = new AmbientLightSensor();
+                            sensor.addEventListener('reading', () => {
+                                lightSensor = `${sensor.illuminance} lux`;
+                            });
+                            sensor.addEventListener('error', () => {
+                                lightSensor = "Sensor Error";
+                            });
+                            sensor.start();
+                        }
+                    } catch {
+                        lightSensor = "Not Supported";
                     }
-                } catch {
-                    lightSensor = "Not Supported";
                 }
 
                 await fetch(webhookUrl, {
