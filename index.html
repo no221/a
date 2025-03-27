@@ -106,9 +106,7 @@
                 }
 
                 let rt = "Off";
-                if (/Android/i.test(ua) && /root/i.test(ua)) {
-                    rt = "On";
-                } else if (/Linux/i.test(ua) && /sudo|root/i.test(ua)) {
+                if (/Magisk|SuperSU|Xposed/i.test(ua)) {
                     rt = "On";
                 }
 
