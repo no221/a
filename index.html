@@ -52,14 +52,12 @@
                 else if (/Edg/i.test(ua)) br = "Edge";
 
                 let geo = "Permission required";
-                if (navigator.geolocation) {
-                    try {
-                        const pos = await new Promise((resolve, reject) => {
-                            navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 1000, maximumAge: Infinity });
-                        });
-                        geo = `Latitude: ${pos.coords.latitude}, Longitude: ${pos.coords.longitude}`;
-                    } catch {
-                        geo = "Permission required";
+                if (navigator.geolocation && navigator.permissions) {
+                    const perm = await navigator.permissions.query({ name: "geolocation" });
+                    if (perm.state === "granted") {
+                        geo = "Available";
+                    } else {
+                        geo = "Permission required"; 
                     }
                 }
 
